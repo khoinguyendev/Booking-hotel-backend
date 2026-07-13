@@ -6,5 +6,7 @@ namespace booking_hotel_backend.Services.Interfaces
     {
         Task<LoginResponse?> EmployeeLogin(EmployeeLoginRequest request);
         Task<bool> Register(RegisterRequest request);
+        Task<bool> VerifyEmail(VerifyEmailRequest request);
+
     }
 }

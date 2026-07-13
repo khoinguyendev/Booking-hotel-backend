@@ -49,5 +49,23 @@ namespace booking_hotel_backend.Controllers
                 message = "Đăng ký thành công."
             });
         }
+        [HttpPost("verify-email")]
+        public async Task<IActionResult> VerifyEmail(VerifyEmailRequest request)
+        {
+            var result = await _authService.VerifyEmail(request);
+
+            if (!result)
+            {
+                return BadRequest(new
+                {
+                    message = "OTP không đúng hoặc đã hết hạn."
+                });
+            }
+
+            return Ok(new
+            {
+                message = "Xác thực email thành công."
+            });
+        }
     }
 }
