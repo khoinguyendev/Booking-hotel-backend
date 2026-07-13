@@ -1,3 +1,4 @@
+using booking_hotel_backend.Configurations;
 using booking_hotel_backend.Data;
 using booking_hotel_backend.Services;
 using booking_hotel_backend.Services.Interfaces;
@@ -25,6 +26,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         connectionString,
         ServerVersion.AutoDetect(connectionString)
     ));
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
+
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

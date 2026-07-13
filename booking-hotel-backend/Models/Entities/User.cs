@@ -25,7 +25,7 @@ namespace booking_hotel_backend.Models.Entities
         [Required]
         [MaxLength(255)]
         public string OtpCode { get; set; } = string.Empty;
-        public string ExpiredAt { get; set; } = string.Empty;
+        public DateTime? ExpiredAt { get; set; } = null;
         public bool Verified { get; set; } = true;
 
         [MaxLength(20)]
