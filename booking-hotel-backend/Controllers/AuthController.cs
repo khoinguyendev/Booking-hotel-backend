@@ -56,5 +56,14 @@ namespace booking_hotel_backend.Controllers
                 Data = null
             });
         }
+        [HttpGet("test")]
+        public async Task<IActionResult> Test()
+        {
+            return Ok(new
+            {
+                message = "thành công."
+            });
+        }
+
     }
 }

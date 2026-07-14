@@ -51,7 +51,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
         };
+<<<<<<< HEAD
     });    
+=======
+    });
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:3000")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+>>>>>>> 6039724 (CORS)
 builder.Services.AddAuthorization();
 var app = builder.Build();
 
@@ -66,7 +81,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 //app.UseHttpsRedirection();
+<<<<<<< HEAD
 app.UseMiddleware<ExceptionMiddleware>();
+=======
+app.UseCors("AllowFrontend");
+
+>>>>>>> 6039724 (CORS)
 app.UseAuthentication();
 app.UseAuthorization();
 
