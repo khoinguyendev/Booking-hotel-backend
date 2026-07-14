@@ -7,7 +7,6 @@ using booking_hotel_backend.Models.DTOs.Auth;
 using booking_hotel_backend.Models.Entities;
 using booking_hotel_backend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace booking_hotel_backend.Services
 {
