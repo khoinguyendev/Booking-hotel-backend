@@ -1,4 +1,6 @@
-﻿using booking_hotel_backend.Data;
+﻿using booking_hotel_backend.Common;
+using booking_hotel_backend.Common.Exceptions;
+using booking_hotel_backend.Data;
 using booking_hotel_backend.Helpers;
 using booking_hotel_backend.Models.DTOs.Auth;
 using booking_hotel_backend.Models.Entities;
@@ -33,7 +35,9 @@ namespace booking_hotel_backend.Services
 
             if (user == null)
             {
-                return null;
+                throw new UnauthorizedException(
+       ErrorCode.AUTH_001,
+       "CodeId hoặc mật khẩu không đúng.");
             }
 
 
@@ -41,16 +45,22 @@ namespace booking_hotel_backend.Services
             // Nếu dùng BCrypt thì thay bằng:
             if (!BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
             {
-                return null;
+                throw new UnauthorizedException(
+       ErrorCode.AUTH_001,
+       "CodeId hoặc mật khẩu không đúng.");
             }
 
             if (!user.IsActive)
             {
-                return null;
+                throw new ForbiddenException(
+       ErrorCode.AUTH_002,
+       "Tài khoản đã bị khóa.");
             }
             if (!user.Verified)
             {
-                return null;
+                throw new ForbiddenException(
+       ErrorCode.AUTH_002,
+       "Tài khoản chưa được kích hoạt.");
             }
             // Chỉ nhân viên/Admin mới được login
             //if (user.Role == Role.Customer)
@@ -67,7 +77,7 @@ namespace booking_hotel_backend.Services
             };
         }
 
-        public async Task<bool> Register(RegisterRequest request)
+        public async Task Register(RegisterRequest request)
         {
             var now = DateTimeExtensions.VietnamNow;
 
@@ -75,7 +85,11 @@ namespace booking_hotel_backend.Services
                 .AnyAsync(x => x.Email == request.Email);
 
             if (exists)
-                return false;
+            {
+                throw new ForbiddenException(
+      ErrorCode.AUTH_002,
+      "Email đã tồn tại.");
+            }
             var otp = Random.Shared.Next(100000, 999999).ToString();
             var user = new User
             {
@@ -89,9 +103,9 @@ namespace booking_hotel_backend.Services
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             await _emailService.SendOtpAsync(user.Email, otp);
-            return true;
+
         }
-        public async Task<bool> VerifyEmail(VerifyEmailRequest request)
+        public async Task VerifyEmail(VerifyEmailRequest request)
         {
             var now = DateTimeExtensions.VietnamNow;
 
@@ -99,13 +113,22 @@ namespace booking_hotel_backend.Services
                 .FirstOrDefaultAsync(x => x.Email == request.Email);
 
             if (user == null)
-                return false;
+            {
+                throw new UnauthorizedException(
+       ErrorCode.AUTH_001,
+       "Email không tồn tại.");
+            }
 
-            if (user.OtpCode != request.Otp)
-                return false;
+            if (user.OtpCode != request.Otp|| now > user.ExpiredAt)
+            {
+                throw new UnauthorizedException(
+       ErrorCode.AUTH_001,
+       "Mã otp không hợp lệ hoặc đã hết hạn.");
+            }
 
-            if (now > user.ExpiredAt)
-                return false;
+
+         
+            
 
             user.Verified = true;
 
@@ -114,7 +137,6 @@ namespace booking_hotel_backend.Services
 
             await _context.SaveChangesAsync();
 
-            return true;
         }
     }
 }
