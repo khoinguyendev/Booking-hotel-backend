@@ -1,4 +1,5 @@
-﻿using booking_hotel_backend.Models.DTOs.Auth;
+﻿using booking_hotel_backend.Common;
+using booking_hotel_backend.Models.DTOs.Auth;
 using booking_hotel_backend.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,51 +21,39 @@ namespace booking_hotel_backend.Controllers
         {
             var result = await _authService.EmployeeLogin(request);
 
-            if (result == null)
+            return Ok(new ApiResponse<LoginResponse>
             {
-                return Unauthorized(new
-                {
-                    message = "CodeId hoặc Password không đúng."
-                });
-            }
-
-            return Ok(result);
+                Success = true,
+                Code = ErrorCode.SUCCESS,
+                Message = "Đăng nhập thành công",
+                Data = result
+            });
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterRequest request)
         {
-            var result = await _authService.Register(request);
+            await _authService.Register(request);
 
-            if (!result)
+            return Ok(new ApiResponse<object>
             {
-                return BadRequest(new
-                {
-                    message = "Email đã tồn tại."
-                });
-            }
-
-            return Ok(new
-            {
-                message = "Đăng ký thành công."
+                Success = true,
+                Code = ErrorCode.SUCCESS,
+                Message = "Đăng ký thành công. Vui lòng kiểm tra email để lấy mã OTP.",
+                Data = null
             });
         }
         [HttpPost("verify-email")]
         public async Task<IActionResult> VerifyEmail(VerifyEmailRequest request)
         {
-            var result = await _authService.VerifyEmail(request);
+             await _authService.VerifyEmail(request);
 
-            if (!result)
+            return Ok(new ApiResponse<object>
             {
-                return BadRequest(new
-                {
-                    message = "OTP không đúng hoặc đã hết hạn."
-                });
-            }
-
-            return Ok(new
-            {
-                message = "Xác thực email thành công."
+                Success = true,
+                Code = ErrorCode.SUCCESS,
+                Message = "Email đã xác thực.",
+                Data = null
             });
         }
     }
