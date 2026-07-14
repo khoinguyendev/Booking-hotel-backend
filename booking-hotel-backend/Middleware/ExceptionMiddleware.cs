@@ -1,16 +1,23 @@
-﻿using System.Text.Json;
-using booking_hotel_backend.Common;
+﻿using booking_hotel_backend.Common;
 using booking_hotel_backend.Common.Exceptions;
+using Microsoft.Extensions.Options;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace booking_hotel_backend.Middleware;
 
 public class ExceptionMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly JsonSerializerOptions _jsonOptions;
 
-    public ExceptionMiddleware(RequestDelegate next)
+    public ExceptionMiddleware(
+        RequestDelegate next,
+        IOptions<JsonOptions> jsonOptions)
     {
         _next = next;
+        _jsonOptions = jsonOptions.Value.JsonSerializerOptions;
     }
 
     public async Task Invoke(HttpContext context)
@@ -33,10 +40,7 @@ public class ExceptionMiddleware
             };
 
             await context.Response.WriteAsync(
-    JsonSerializer.Serialize(response, new JsonSerializerOptions
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    }));
+    JsonSerializer.Serialize(response, _jsonOptions));
         }
         catch (Exception)
         {
@@ -51,10 +55,7 @@ public class ExceptionMiddleware
             };
 
             await context.Response.WriteAsync(
-    JsonSerializer.Serialize(response, new JsonSerializerOptions
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    }));
+    JsonSerializer.Serialize(response, _jsonOptions));
         }
     }
 }

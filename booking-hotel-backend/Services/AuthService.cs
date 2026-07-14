@@ -1,12 +1,13 @@
 ﻿using booking_hotel_backend.Common;
 using booking_hotel_backend.Common.Exceptions;
 using booking_hotel_backend.Data;
+using booking_hotel_backend.Extensions;
 using booking_hotel_backend.Helpers;
 using booking_hotel_backend.Models.DTOs.Auth;
 using booking_hotel_backend.Models.Entities;
-using booking_hotel_backend.Models.Enums;
 using booking_hotel_backend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace booking_hotel_backend.Services
 {
@@ -37,7 +38,7 @@ namespace booking_hotel_backend.Services
             {
                 throw new UnauthorizedException(
        ErrorCode.AUTH_001,
-       "CodeId hoặc mật khẩu không đúng.");
+       "Email hoặc mật khẩu không đúng.");
             }
 
 
@@ -47,7 +48,7 @@ namespace booking_hotel_backend.Services
             {
                 throw new UnauthorizedException(
        ErrorCode.AUTH_001,
-       "CodeId hoặc mật khẩu không đúng.");
+       "Email hoặc mật khẩu không đúng.");
             }
 
             if (!user.IsActive)
@@ -73,7 +74,8 @@ namespace booking_hotel_backend.Services
             return new LoginResponse
             {
                 AccessToken = token,
-                ExpiredAt = now.AddHours(8)
+                ExpiredAt = now.AddHours(8),
+                User = user.ToResponse()
             };
         }
 
@@ -137,6 +139,35 @@ namespace booking_hotel_backend.Services
 
             await _context.SaveChangesAsync();
 
+        }
+
+        public async Task ResendEmail(ResendEmailRequest request)
+        {
+            var now = DateTimeExtensions.VietnamNow;
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(x => x.Email == request.Email);
+
+            if (user == null)
+            {
+                throw new NotFoundException(
+                    ErrorCode.USER_001,
+                    "Email không tồn tại.");
+            }
+            if (user.Verified)
+            {
+                throw new BadRequestException(
+                    ErrorCode.AUTH_004,
+                    "Tài khoản đã được xác thực.");
+            }
+            var otp = Random.Shared.Next(100000, 999999).ToString();
+
+            user.OtpCode = otp;
+            user.ExpiredAt = now.AddMinutes(5);
+
+            await _context.SaveChangesAsync();
+
+            await _emailService.SendOtpAsync(user.Email, otp);
         }
     }
 }

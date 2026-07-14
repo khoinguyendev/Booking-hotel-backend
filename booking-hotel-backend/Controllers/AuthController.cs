@@ -56,6 +56,19 @@ namespace booking_hotel_backend.Controllers
                 Data = null
             });
         }
+        [HttpPost("resend-email")]
+        public async Task<IActionResult> ResendEmail(ResendEmailRequest request)
+        {
+            await _authService.ResendEmail(request);
+
+            return Ok(new ApiResponse<object>
+            {
+                Success = true,
+                Code = ErrorCode.SUCCESS,
+                Message = "Mã Otp mới đã được gửi.",
+                Data = null
+            });
+        }
         [HttpGet("test")]
         public async Task<IActionResult> Test()
         {

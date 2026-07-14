@@ -6,4 +6,9 @@
 
         public string Otp { get; set; }
     }
+    public class ResendEmailRequest
+    {
+        public string Email { get; set; }
+
+    }
 }

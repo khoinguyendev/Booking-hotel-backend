@@ -8,5 +8,7 @@ namespace booking_hotel_backend.Services.Interfaces
         Task Register(RegisterRequest request);
         Task VerifyEmail(VerifyEmailRequest request);
 
+        Task ResendEmail(ResendEmailRequest request);
+
     }
 }
