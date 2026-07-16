@@ -130,9 +130,6 @@ public class HotelService : IHotelService
         if (!await _context.HotelBrands.AnyAsync(x => x.Id == request.BrandId))
             throw new Exception("Brand not found.");
 
-        if (!await _context.Users.AnyAsync(x => x.Id == request.OwnerId))
-            throw new Exception("Owner not found.");
-
 
 
         if (request.AmenityIds.Any())

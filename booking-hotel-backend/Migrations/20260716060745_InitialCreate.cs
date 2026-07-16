@@ -65,6 +65,25 @@ namespace booking_hotel_backend.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "positions",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Description = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Status = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_positions", x => x.Id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "surcharge_types",
                 columns: table => new
                 {
@@ -96,10 +115,13 @@ namespace booking_hotel_backend.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Email = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    CodeId = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Password = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     OtpCode = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    ExpiredAt = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ExpiredAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     Verified = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     Phone = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -124,9 +146,9 @@ namespace booking_hotel_backend.Migrations
                     id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     brand_id = table.Column<long>(type: "bigint", nullable: false),
-                    owner_id = table.Column<long>(type: "bigint", nullable: false),
-                    city_id = table.Column<long>(type: "bigint", nullable: false),
                     name = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    image = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     slug = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -187,24 +209,37 @@ namespace booking_hotel_backend.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "hotel_images",
+                name: "hotel_staffs",
                 columns: table => new
                 {
-                    id = table.Column<long>(type: "bigint", nullable: false)
+                    Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     hotel_id = table.Column<long>(type: "bigint", nullable: false),
-                    image_url = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    sort_order = table.Column<int>(type: "int", nullable: false)
+                    user_id = table.Column<int>(type: "int", nullable: false),
+                    position_id = table.Column<long>(type: "bigint", nullable: false),
+                    Status = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    JoinedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_hotel_images", x => x.id);
+                    table.PrimaryKey("PK_hotel_staffs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_hotel_images_hotels_hotel_id",
+                        name: "FK_hotel_staffs_hotels_hotel_id",
                         column: x => x.hotel_id,
                         principalTable: "hotels",
                         principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_hotel_staffs_positions_position_id",
+                        column: x => x.position_id,
+                        principalTable: "positions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_hotel_staffs_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
@@ -405,9 +440,19 @@ namespace booking_hotel_backend.Migrations
                 column: "amenity_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_hotel_images_hotel_id",
-                table: "hotel_images",
+                name: "IX_hotel_staffs_hotel_id",
+                table: "hotel_staffs",
                 column: "hotel_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_hotel_staffs_position_id",
+                table: "hotel_staffs",
+                column: "position_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_hotel_staffs_user_id",
+                table: "hotel_staffs",
+                column: "user_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_hotel_surcharges_hotel_id",
@@ -433,6 +478,18 @@ namespace booking_hotel_backend.Migrations
                 name: "IX_rooms_room_type_id",
                 table: "rooms",
                 column: "room_type_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_users_CodeId",
+                table: "users",
+                column: "CodeId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_users_Email",
+                table: "users",
+                column: "Email",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -445,7 +502,7 @@ namespace booking_hotel_backend.Migrations
                 name: "hotel_amenities");
 
             migrationBuilder.DropTable(
-                name: "hotel_images");
+                name: "hotel_staffs");
 
             migrationBuilder.DropTable(
                 name: "bookings");
@@ -455,6 +512,9 @@ namespace booking_hotel_backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "amenities");
+
+            migrationBuilder.DropTable(
+                name: "positions");
 
             migrationBuilder.DropTable(
                 name: "rooms");

@@ -8,11 +8,6 @@ public class CreateHotelRequest
     public long BrandId { get; set; }
 
     [Required]
-    public long OwnerId { get; set; }
-
-    [Required]
-    public long CityId { get; set; }
-    [Required]
     public string City { get; set; } = string.Empty;
 
     [Required]

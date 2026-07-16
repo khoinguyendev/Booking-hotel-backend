@@ -191,10 +191,6 @@ namespace booking_hotel_backend.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("city");
 
-                    b.Property<long>("CityId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("city_id");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("created_at");
@@ -207,6 +203,12 @@ namespace booking_hotel_backend.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)")
                         .HasColumnName("email");
+
+                    b.Property<string>("Image")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("image");
 
                     b.Property<decimal?>("Latitude")
                         .HasColumnType("decimal(10,8)")
@@ -221,10 +223,6 @@ namespace booking_hotel_backend.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)")
                         .HasColumnName("name");
-
-                    b.Property<long>("OwnerId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("owner_id");
 
                     b.Property<string>("Phone")
                         .HasMaxLength(20)
@@ -340,12 +338,11 @@ namespace booking_hotel_backend.Migrations
                     b.ToTable("hotel_brands");
                 });
 
-            modelBuilder.Entity("booking_hotel_backend.Models.Entities.HotelImage", b =>
+            modelBuilder.Entity("booking_hotel_backend.Models.Entities.HotelStaff", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
+                        .HasColumnType("bigint");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
@@ -353,21 +350,29 @@ namespace booking_hotel_backend.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("hotel_id");
 
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)")
-                        .HasColumnName("image_url");
+                    b.Property<DateTime>("JoinedAt")
+                        .HasColumnType("datetime(6)");
 
-                    b.Property<int>("SortOrder")
+                    b.Property<long>("PositionId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("position_id");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("UserId")
                         .HasColumnType("int")
-                        .HasColumnName("sort_order");
+                        .HasColumnName("user_id");
 
                     b.HasKey("Id");
 
                     b.HasIndex("HotelId");
 
-                    b.ToTable("hotel_images");
+                    b.HasIndex("PositionId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("hotel_staffs");
                 });
 
             modelBuilder.Entity("booking_hotel_backend.Models.Entities.HotelSurcharge", b =>
@@ -432,6 +437,34 @@ namespace booking_hotel_backend.Migrations
                     b.HasIndex("SurchargeTypeId");
 
                     b.ToTable("hotel_surcharges");
+                });
+
+            modelBuilder.Entity("booking_hotel_backend.Models.Entities.Position", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("tinyint(1)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("positions");
                 });
 
             modelBuilder.Entity("booking_hotel_backend.Models.Entities.Room", b =>
@@ -699,15 +732,31 @@ namespace booking_hotel_backend.Migrations
                     b.Navigation("Hotel");
                 });
 
-            modelBuilder.Entity("booking_hotel_backend.Models.Entities.HotelImage", b =>
+            modelBuilder.Entity("booking_hotel_backend.Models.Entities.HotelStaff", b =>
                 {
                     b.HasOne("booking_hotel_backend.Models.Entities.Hotel", "Hotel")
-                        .WithMany("Images")
+                        .WithMany("HotelStaffs")
                         .HasForeignKey("HotelId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("booking_hotel_backend.Models.Entities.Position", "Position")
+                        .WithMany("HotelStaffs")
+                        .HasForeignKey("PositionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("booking_hotel_backend.Models.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Hotel");
+
+                    b.Navigation("Position");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("booking_hotel_backend.Models.Entities.HotelSurcharge", b =>
@@ -765,9 +814,9 @@ namespace booking_hotel_backend.Migrations
                 {
                     b.Navigation("HotelAmenities");
 
-                    b.Navigation("HotelSurcharges");
+                    b.Navigation("HotelStaffs");
 
-                    b.Navigation("Images");
+                    b.Navigation("HotelSurcharges");
 
                     b.Navigation("RoomTypes");
                 });
@@ -775,6 +824,11 @@ namespace booking_hotel_backend.Migrations
             modelBuilder.Entity("booking_hotel_backend.Models.Entities.HotelSurcharge", b =>
                 {
                     b.Navigation("BookingSurcharges");
+                });
+
+            modelBuilder.Entity("booking_hotel_backend.Models.Entities.Position", b =>
+                {
+                    b.Navigation("HotelStaffs");
                 });
 
             modelBuilder.Entity("booking_hotel_backend.Models.Entities.Room", b =>

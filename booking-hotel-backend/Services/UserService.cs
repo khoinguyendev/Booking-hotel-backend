@@ -2,7 +2,9 @@
 using booking_hotel_backend.Data;
 using booking_hotel_backend.Extensions;
 using booking_hotel_backend.Models.DTOs.Auth;
+using booking_hotel_backend.Models.DTOs.HotelStaff;
 using booking_hotel_backend.Models.DTOs.User;
+using booking_hotel_backend.Models.Entities;
 using booking_hotel_backend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -67,5 +69,7 @@ namespace booking_hotel_backend.Services
             await _context.SaveChangesAsync();
             return user.ToResponse();
         }
+
+        
     }
 }

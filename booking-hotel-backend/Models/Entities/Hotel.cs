@@ -13,13 +13,6 @@ public class Hotel
     [Column("brand_id")]
     public long BrandId { get; set; }
 
-    [Required]
-    [Column("owner_id")]
-    public long OwnerId { get; set; }
-
-    [Required]
-    [Column("city_id")]
-    public long CityId { get; set; }
 
     [Required]
     [MaxLength(255)]
@@ -76,11 +69,9 @@ public class Hotel
     [Column("updated_at")]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-    // Navigation Properties
-
     [ForeignKey(nameof(BrandId))]
     public virtual HotelBrand Brand { get; set; } = null!;
-
+    public ICollection<HotelStaff> HotelStaffs { get; set; } = [];
     public virtual ICollection<HotelAmenity> HotelAmenities { get; set; } = [];
     public virtual ICollection<RoomType> RoomTypes { get; set; } = [];
     public virtual ICollection<HotelSurcharge> HotelSurcharges { get; set; } = [];

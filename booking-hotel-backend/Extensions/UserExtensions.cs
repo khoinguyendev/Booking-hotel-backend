@@ -8,6 +8,7 @@ namespace booking_hotel_backend.Extensions
         {
             return new UserResponse
             {
+                Id= user.Id,
                 FullName = user.FullName,
                 Email = user.Email,
                 CodeId = user.CodeId,

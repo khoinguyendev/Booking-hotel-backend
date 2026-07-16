@@ -13,7 +13,9 @@
 
         public DbSet<User> Users { get; set; }
         public DbSet<HotelBrand> HotelBrands { get; set; }
+        public DbSet<Position> Positions { get; set; }
 
+        public DbSet<HotelStaff> HotelStaffs { get; set; }
         public DbSet<Hotel> Hotels { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Amenity> Amenities { get; set; }

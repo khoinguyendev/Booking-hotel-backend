@@ -11,8 +11,6 @@ public static class HotelMapper
         return new Hotel
         {
             BrandId = request.BrandId,
-            OwnerId = request.OwnerId,
-            CityId = request.CityId,
             City = request.City,
             Name = request.Name,
             Slug = request.Slug,
@@ -35,8 +33,6 @@ public static class HotelMapper
     public static void UpdateFromRequest(this Hotel hotel, UpdateHotelRequest request)
     {
         hotel.BrandId = request.BrandId ?? hotel.BrandId;
-        hotel.OwnerId = request.OwnerId ?? hotel.OwnerId;
-        hotel.CityId = request.CityId ?? hotel.CityId;
         hotel.City = request.City ?? hotel.City;
         hotel.Name = request.Name ?? hotel.Name;
         hotel.Slug = request.Slug ?? hotel.Slug;
@@ -61,8 +57,6 @@ public static class HotelMapper
             Id = hotel.Id,
             BrandId = hotel.BrandId,
             BrandName = hotel.Brand?.Name ?? "",
-            OwnerId = hotel.OwnerId,
-            CityId = hotel.CityId,
             City = hotel.City,
             Name = hotel.Name,
             Slug = hotel.Slug,

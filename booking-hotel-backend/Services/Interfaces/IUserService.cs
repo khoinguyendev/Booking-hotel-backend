@@ -1,5 +1,6 @@
 ﻿using booking_hotel_backend.Common;
 using booking_hotel_backend.Models.DTOs.Auth;
+using booking_hotel_backend.Models.DTOs.HotelStaff;
 using booking_hotel_backend.Models.DTOs.User;
 
 namespace booking_hotel_backend.Services.Interfaces
@@ -8,5 +9,7 @@ namespace booking_hotel_backend.Services.Interfaces
     {
         Task<PagedResponse<UserResponse>> GetUsers(GetUsersRequest request);
         Task<UserResponse>CreateManager(CreateUserRequest request);
+
+       
     }
 }
