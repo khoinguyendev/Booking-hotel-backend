@@ -1,9 +1,10 @@
 ﻿using booking_hotel_backend.Common;
 using booking_hotel_backend.Models.DTOs.Auth;
 using booking_hotel_backend.Models.DTOs.User;
-
-using Microsoft.AspNetCore.Mvc;
+using booking_hotel_backend.Services;
 using booking_hotel_backend.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace booking_hotel_backend.Controllers
 {
@@ -19,7 +20,7 @@ namespace booking_hotel_backend.Controllers
         }
         [HttpGet]
         public async Task<IActionResult> GetUsers(
-    [FromQuery] GetUsersRequest request)
+            [FromQuery] GetUsersRequest request)
         {
             var result = await _userService.GetUsers(request);
 
@@ -29,6 +30,20 @@ namespace booking_hotel_backend.Controllers
                 Code = ErrorCode.SUCCESS,
                 Message = "Lấy danh sách người dùng thành công.",
                 Data = result
+            });
+        }
+        [Authorize(Roles = "Admin,Customer")]
+        [HttpPost]
+        public async Task<IActionResult> Register(CreateUserRequest request)
+        {
+            var data=await _userService.CreateManager(request);
+
+            return Ok(new ApiResponse<object>
+            {
+                Success = true,
+                Code = ErrorCode.SUCCESS,
+                Message = "Tạo thành công.",
+                Data = data
             });
         }
     }

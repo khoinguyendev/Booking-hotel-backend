@@ -51,5 +51,21 @@ namespace booking_hotel_backend.Services
                 TotalPages = (int)Math.Ceiling((double)totalItems / request.PageSize)
             };
         }
+
+        public async Task<UserResponse> CreateManager(CreateUserRequest request)
+        {
+            var user = new Models.Entities.User
+            {
+                FullName = request.FullName,
+                Email = request.Email,
+                Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                Role = request.Role,
+                CodeId = request.CodeId,
+                IsActive = true
+            };
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+            return user.ToResponse();
+        }
     }
 }

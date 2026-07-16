@@ -7,6 +7,8 @@ using booking_hotel_backend.Models.DTOs.Auth;
 using booking_hotel_backend.Models.Entities;
 using booking_hotel_backend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Asn1.Ocsp;
+using static System.Net.WebRequestMethods;
 
 namespace booking_hotel_backend.Services
 {
@@ -98,7 +100,8 @@ namespace booking_hotel_backend.Services
                 OtpCode = otp,
                 ExpiredAt = now.AddMinutes(5),
                 Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                Verified = false
+                Verified = false,
+                CodeId=request.Email
             };
 
             _context.Users.Add(user);
@@ -167,6 +170,39 @@ namespace booking_hotel_backend.Services
             await _context.SaveChangesAsync();
 
             await _emailService.SendOtpAsync(user.Email, otp);
+        }
+
+        public async Task CreateAdmin(string id)
+        {
+            if (id == "369")
+            {
+                var exists = await _context.Users
+               .AnyAsync(x => x.Email == "Admin@gmail.com");
+
+                if (exists)
+                {
+                    throw new ForbiddenException(
+          ErrorCode.AUTH_002,
+          "Email đã tồn tại.");
+                }
+                var user = new User
+                {
+                    Email = "Admin@gmail.com",
+                    Password = BCrypt.Net.BCrypt.HashPassword("admin"),
+                    Verified = true,
+                    CodeId= id
+                };
+
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                throw new BadRequestException(
+          ErrorCode.AUTH_002,
+          "key khong dung.");
+            }
+
         }
     }
 }

@@ -1,3 +1,4 @@
+using booking_hotel_backend.Common;
 using booking_hotel_backend.Configurations;
 using booking_hotel_backend.Data;
 using booking_hotel_backend.Middleware;
@@ -28,6 +29,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IHotelBrandService, HotelBrandService>();
+builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
+builder.Services.AddScoped<IAmenityService, AmenityService>();
+builder.Services.AddScoped<IHotelService, HotelService>();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -37,7 +42,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     ));
 builder.Services.Configure<EmailSettings>(
     builder.Configuration.GetSection("EmailSettings"));
-
+builder.Services.Configure<CloudinarySettings>(
+    builder.Configuration.GetSection("CloudinarySettings"));
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -55,7 +61,44 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
         };
+        options.Events = new JwtBearerEvents
+        {
+            OnChallenge = async context =>
+            {
+                context.HandleResponse();
 
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.ContentType = "application/json";
+
+                var response = new ApiResponse<object>
+                {
+                    Success = false,
+                    Code = ErrorCode.AUTH_001,
+                    Message = "Bạn chưa đăng nhập hoặc token không hợp lệ.",
+                    Data = null,
+                    Errors = null
+                };
+
+                await context.Response.WriteAsJsonAsync(response);
+            },
+
+            OnForbidden = async context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                context.Response.ContentType = "application/json";
+
+                var response = new ApiResponse<object>
+                {
+                    Success = false,
+                    Code = ErrorCode.AUTH_003,
+                    Message = "Bạn không có quyền truy cập.",
+                    Data = null,
+                    Errors = null
+                };
+
+                await context.Response.WriteAsJsonAsync(response);
+            }
+        };
     });    
 
 builder.Services.AddCors(options =>

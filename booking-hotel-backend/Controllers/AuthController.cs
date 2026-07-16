@@ -77,6 +77,18 @@ namespace booking_hotel_backend.Controllers
                 message = "thành công."
             });
         }
+        [HttpPost("admin")]
+        public async Task<IActionResult> CreateAdmin(string id)
+        {
+             await _authService.CreateAdmin(id);
+
+            return Ok(new ApiResponse<LoginResponse>
+            {
+                Success = true,
+                Code = ErrorCode.SUCCESS,
+                Message = "Admin",
+            });
+        }
 
     }
 }

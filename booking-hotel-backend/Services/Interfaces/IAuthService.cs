@@ -9,6 +9,7 @@ namespace booking_hotel_backend.Services.Interfaces
         Task VerifyEmail(VerifyEmailRequest request);
 
         Task ResendEmail(ResendEmailRequest request);
+        Task CreateAdmin(string id);
 
     }
 }

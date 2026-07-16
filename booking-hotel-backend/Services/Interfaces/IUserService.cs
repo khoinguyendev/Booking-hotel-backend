@@ -7,5 +7,6 @@ namespace booking_hotel_backend.Services.Interfaces
     public interface IUserService
     {
         Task<PagedResponse<UserResponse>> GetUsers(GetUsersRequest request);
+        Task<UserResponse>CreateManager(CreateUserRequest request);
     }
 }

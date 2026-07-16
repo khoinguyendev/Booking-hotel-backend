@@ -12,6 +12,14 @@
         }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<HotelBrand> HotelBrands { get; set; }
+
+        public DbSet<Hotel> Hotels { get; set; }
+        public DbSet<Room> Rooms { get; set; }
+        public DbSet<Amenity> Amenities { get; set; }
+        public DbSet<HotelAmenity> HotelAmenities { get; set; }
+        public DbSet<Booking> Bookings { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

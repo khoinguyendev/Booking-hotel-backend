@@ -25,7 +25,9 @@ public class Hotel
     [MaxLength(255)]
     [Column("name")]
     public string Name { get; set; } = string.Empty;
-
+    [MaxLength(255)]
+    [Column("image")]
+    public string Image { get; set; } = string.Empty;
     [Required]
     [MaxLength(255)]
     [Column("slug")]
@@ -79,7 +81,6 @@ public class Hotel
     [ForeignKey(nameof(BrandId))]
     public virtual HotelBrand Brand { get; set; } = null!;
 
-    public virtual ICollection<HotelImage> Images { get; set; } = [];
     public virtual ICollection<HotelAmenity> HotelAmenities { get; set; } = [];
     public virtual ICollection<RoomType> RoomTypes { get; set; } = [];
     public virtual ICollection<HotelSurcharge> HotelSurcharges { get; set; } = [];
