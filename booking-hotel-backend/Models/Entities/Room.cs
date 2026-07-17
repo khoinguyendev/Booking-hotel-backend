@@ -13,7 +13,9 @@ public class Room
     [Required]
     [Column("room_type_id")]
     public long RoomTypeId { get; set; }
-
+    [MaxLength(255)]
+    [Column("image")]
+    public string Image { get; set; } = string.Empty;
     [Required]
     [MaxLength(20)]
     [Column("room_number")]

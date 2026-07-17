@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using booking_hotel_backend.Data;
 
@@ -11,9 +12,11 @@ using booking_hotel_backend.Data;
 namespace booking_hotel_backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260716163716_UpdateTable")]
+    partial class UpdateTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -61,20 +64,27 @@ namespace booking_hotel_backend.Migrations
                     b.Property<TimeOnly?>("CheckOutTime")
                         .HasColumnType("time(6)");
 
+                    b.Property<long>("HotelStaffId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("hotel_staff_id");
+
                     b.Property<string>("Note")
                         .HasColumnType("longtext");
+
+                    b.Property<long>("ShiftId")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<long>("WorkScheduleId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("work_schedule_id");
+                    b.Property<DateOnly>("WorkDate")
+                        .HasColumnType("date");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("WorkScheduleId")
-                        .IsUnique();
+                    b.HasIndex("HotelStaffId");
+
+                    b.HasIndex("ShiftId");
 
                     b.ToTable("attendances");
                 });
@@ -377,12 +387,6 @@ namespace booking_hotel_backend.Migrations
                         .HasColumnType("bigint");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("EmployeeCode")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)")
-                        .HasColumnName("employee_code");
 
                     b.Property<long>("HotelId")
                         .HasColumnType("bigint")
@@ -761,6 +765,10 @@ namespace booking_hotel_backend.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
+                    b.Property<string>("CodeId")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -806,6 +814,9 @@ namespace booking_hotel_backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CodeId")
+                        .IsUnique();
+
                     b.HasIndex("Email")
                         .IsUnique();
 
@@ -845,13 +856,21 @@ namespace booking_hotel_backend.Migrations
 
             modelBuilder.Entity("booking_hotel_backend.Models.Entities.Attendance", b =>
                 {
-                    b.HasOne("booking_hotel_backend.Models.Entities.WorkSchedule", "WorkSchedule")
-                        .WithOne("Attendance")
-                        .HasForeignKey("booking_hotel_backend.Models.Entities.Attendance", "WorkScheduleId")
+                    b.HasOne("booking_hotel_backend.Models.Entities.HotelStaff", "HotelStaff")
+                        .WithMany("Attendances")
+                        .HasForeignKey("HotelStaffId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("WorkSchedule");
+                    b.HasOne("booking_hotel_backend.Models.Entities.Shift", "Shift")
+                        .WithMany("Attendances")
+                        .HasForeignKey("ShiftId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("HotelStaff");
+
+                    b.Navigation("Shift");
                 });
 
             modelBuilder.Entity("booking_hotel_backend.Models.Entities.Booking", b =>
@@ -1071,6 +1090,8 @@ namespace booking_hotel_backend.Migrations
 
             modelBuilder.Entity("booking_hotel_backend.Models.Entities.HotelStaff", b =>
                 {
+                    b.Navigation("Attendances");
+
                     b.Navigation("LeaveRequests");
 
                     b.Navigation("Salaries");
@@ -1098,14 +1119,14 @@ namespace booking_hotel_backend.Migrations
                     b.Navigation("Rooms");
                 });
 
+            modelBuilder.Entity("booking_hotel_backend.Models.Entities.Shift", b =>
+                {
+                    b.Navigation("Attendances");
+                });
+
             modelBuilder.Entity("booking_hotel_backend.Models.Entities.SurchargeType", b =>
                 {
                     b.Navigation("Surcharges");
-                });
-
-            modelBuilder.Entity("booking_hotel_backend.Models.Entities.WorkSchedule", b =>
-                {
-                    b.Navigation("Attendance");
                 });
 #pragma warning restore 612, 618
         }

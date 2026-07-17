@@ -5,7 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace booking_hotel_backend.Models.Entities
 {
-    [Index(nameof(CodeId), IsUnique = true)]
     [Index(nameof(Email), IsUnique = true)]
     [Table("users")]
     public class User
@@ -20,7 +19,7 @@ namespace booking_hotel_backend.Models.Entities
         [Required]
         [MaxLength(100)]
         public string Email { get; set; } = string.Empty;
-        public string CodeId { get; set; } = string.Empty;
+       
         public string Password { get; set; } = string.Empty;
         [Required]
         [MaxLength(255)]

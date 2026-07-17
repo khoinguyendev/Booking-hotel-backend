@@ -11,7 +11,6 @@ namespace booking_hotel_backend.Extensions
                 Id= user.Id,
                 FullName = user.FullName,
                 Email = user.Email,
-                CodeId = user.CodeId,
                 Role = user.Role,
                 Avatar = user.Avatar,
             };

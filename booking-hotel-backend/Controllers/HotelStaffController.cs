@@ -1,6 +1,7 @@
 ﻿using booking_hotel_backend.Common;
 using booking_hotel_backend.Models.DTOs.Hotel;
 using booking_hotel_backend.Models.DTOs.HotelStaff;
+using booking_hotel_backend.Models.DTOs.User;
 using booking_hotel_backend.Services;
 using booking_hotel_backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -34,12 +35,28 @@ namespace booking_hotel_backend.Controllers
         }
         [Authorize(Roles = "Manager")]
         [HttpGet]
-        public async Task<IActionResult> GetStaffs()
+        public async Task<IActionResult> GetStaffs([FromQuery] PaginationRequest request, [FromQuery] DateOnly? date=null)
         {
             var userId = int.Parse(
                 User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-            var data = await _hotelStaffService.GetStaffByManagerAsync(userId);
+            var data = await _hotelStaffService.GetStaffByManagerAsync(request,userId,date);
+
+            return Ok(new ApiResponse<object>
+            {
+                Success = true,
+                Code = ErrorCode.SUCCESS,
+                Message = "Lấy danh sách nhân viên thành công.",
+                Data = data
+            });
+        }
+
+        [HttpGet("/test")]
+        public async Task<IActionResult> Test()
+        {
+         
+
+            var data = await _hotelStaffService.Test();
 
             return Ok(new ApiResponse<object>
             {

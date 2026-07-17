@@ -7,8 +7,6 @@ using booking_hotel_backend.Models.DTOs.Auth;
 using booking_hotel_backend.Models.Entities;
 using booking_hotel_backend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Asn1.Ocsp;
-using static System.Net.WebRequestMethods;
 
 namespace booking_hotel_backend.Services
 {
@@ -101,7 +99,6 @@ namespace booking_hotel_backend.Services
                 ExpiredAt = now.AddMinutes(5),
                 Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
                 Verified = false,
-                CodeId=request.Email
             };
 
             _context.Users.Add(user);
@@ -190,7 +187,6 @@ namespace booking_hotel_backend.Services
                     Email = "Admin@gmail.com",
                     Password = BCrypt.Net.BCrypt.HashPassword("admin"),
                     Verified = true,
-                    CodeId= id
                 };
 
                 _context.Users.Add(user);

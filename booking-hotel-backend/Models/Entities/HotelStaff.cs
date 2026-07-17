@@ -16,7 +16,10 @@ namespace booking_hotel_backend.Models.Entities
         [Required]
         [Column("user_id")]
         public int UserId { get; set; }
-
+        [Required]
+        [MaxLength(20)]
+        [Column("employee_code")]
+        public string EmployeeCode { get; set; } = string.Empty;
         [Required]
         [Column("position_id")]
         public long PositionId { get; set; }
@@ -33,5 +36,11 @@ namespace booking_hotel_backend.Models.Entities
 
         [ForeignKey(nameof(PositionId))]
         public Position Position { get; set; } = null!;
+
+        public ICollection<WorkSchedule> WorkSchedules { get; set; } = [];
+
+        public ICollection<LeaveRequest> LeaveRequests { get; set; } = [];
+
+        public ICollection<Salary> Salaries { get; set; } = [];
     }
 }

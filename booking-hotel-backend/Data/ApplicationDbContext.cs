@@ -21,7 +21,10 @@
         public DbSet<Amenity> Amenities { get; set; }
         public DbSet<HotelAmenity> HotelAmenities { get; set; }
         public DbSet<Booking> Bookings { get; set; }
-
+        public DbSet<RoomType> RoomTypes { get; set; }
+        public DbSet<Shift> Shifts { get; set; }
+        public DbSet<Attendance> Attendances { get; set; }
+        public DbSet<WorkSchedule> WorkSchedules { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

@@ -25,7 +25,6 @@ namespace booking_hotel_backend.Services
                 new Claim(ClaimTypes.Name, user.FullName),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role.ToString()),
-                new Claim("CodeId", user.CodeId)
             };
 
             var key = new SymmetricSecurityKey(

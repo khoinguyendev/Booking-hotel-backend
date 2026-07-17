@@ -62,7 +62,6 @@ namespace booking_hotel_backend.Services
                 Email = request.Email,
                 Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
                 Role = request.Role,
-                CodeId = request.CodeId,
                 IsActive = true
             };
             _context.Users.Add(user);
