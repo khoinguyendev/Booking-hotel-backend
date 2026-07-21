@@ -1,4 +1,5 @@
-﻿using booking_hotel_backend.Data;
+﻿using booking_hotel_backend.Common.Exceptions;
+using booking_hotel_backend.Data;
 using booking_hotel_backend.Extensions;
 using booking_hotel_backend.Models.DTOs.Hotel;
 using booking_hotel_backend.Models.DTOs.Shift;
@@ -32,6 +33,18 @@ namespace booking_hotel_backend.Services
                 ?? throw new Exception("Hotel not found.");
 
             return shift.ToResponse();
+        }
+        public async Task<List<ShiftReponse>> GetByHotelId(int userId)
+        {
+            var hotelStaff = await _context.HotelStaffs
+        .FirstOrDefaultAsync(x => x.UserId == userId)
+        ?? throw new BadRequestException("X001", "Nhân viên không tồn tại.");
+
+            var shifts = await _context.Shifts
+                .Where(x => x.HotelId == hotelStaff.HotelId && x.Status)
+                .ToListAsync();
+
+            return shifts.Select(x => x.ToResponse()).ToList();
         }
 
         public async Task<ShiftReponse> CreateAsync(CreateShiftRequest request)

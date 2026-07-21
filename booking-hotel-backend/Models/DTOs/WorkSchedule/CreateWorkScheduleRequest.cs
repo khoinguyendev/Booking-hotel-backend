@@ -4,7 +4,6 @@ namespace booking_hotel_backend.Models.DTOs.WorkSchedule;
 
 public class CreateWorkScheduleRequest
 {
-    [Required]
     public long HotelStaffId { get; set; }
 
     [Required]

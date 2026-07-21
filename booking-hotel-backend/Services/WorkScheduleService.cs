@@ -1,6 +1,7 @@
 ﻿using booking_hotel_backend.Data;
 using booking_hotel_backend.Extensions;
 using booking_hotel_backend.Models.DTOs.WorkSchedule;
+using booking_hotel_backend.Models.Entities;
 using booking_hotel_backend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -126,7 +127,75 @@ namespace booking_hotel_backend.Services
 
             return schedule.ToResponse();
         }
+        public async Task<List<WorkScheduleResponse>> ImportAsync(List<ImportWorkScheduleRequest> requests, long userId)
+        {
+            // Xác định khách sạn của manager
+            var manager = await _context.HotelStaffs
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.UserId == userId);
 
+            if (manager == null)
+                throw new Exception("Bạn không thuộc khách sạn nào.");
+
+            // Lấy toàn bộ nhân viên của khách sạn
+            var staffs = await _context.HotelStaffs
+                .Where(x => x.HotelId == manager.HotelId)
+                .ToDictionaryAsync(x => x.EmployeeCode);
+
+            // Lấy toàn bộ ca làm
+            var shifts = await _context.Shifts
+    .Where(x => x.HotelId == manager.HotelId)
+    .ToDictionaryAsync(x => x.Name);
+
+            var workSchedules = new List<WorkSchedule>();
+
+            foreach (var item in requests)
+            {
+                // Kiểm tra nhân viên
+                if (!staffs.TryGetValue(item.EmployeeCode, out var staff))
+                    throw new Exception($"Không tìm thấy nhân viên: {item.EmployeeCode}");
+
+                // Nếu là ngày nghỉ thì không cần tìm ca
+                long shiftId = 0;
+
+                if (!item.IsDayOff)
+                {
+                    if (!shifts.TryGetValue(item.ShiftName, out var shift))
+                        throw new Exception($"Không tìm thấy ca: {item.ShiftName}");
+
+                    shiftId = shift.Id;
+                }
+
+                // Kiểm tra trùng
+                var exists = await _context.WorkSchedules.AnyAsync(x =>
+                    x.HotelStaffId == staff.Id &&
+                    x.WorkDate == item.WorkDate &&
+                    x.ShiftId == shiftId);
+
+                if (exists)
+                    continue;
+
+                workSchedules.Add(new WorkSchedule
+                {
+                    HotelStaffId = staff.Id,
+                    ShiftId = shiftId,
+                    WorkDate = item.WorkDate,
+                    IsDayOff = item.IsDayOff
+                });
+            }
+
+            _context.WorkSchedules.AddRange(workSchedules);
+
+            await _context.SaveChangesAsync();
+
+            return await _context.WorkSchedules
+                .Where(x => workSchedules.Select(w => w.Id).Contains(x.Id))
+                .Include(x => x.HotelStaff)
+                    .ThenInclude(x => x.User)
+                .Include(x => x.Shift)
+                .Select(x => x.ToResponse())
+                .ToListAsync();
+        }
         public async Task DeleteAsync(long id)
         {
             var schedule = await _context.WorkSchedules

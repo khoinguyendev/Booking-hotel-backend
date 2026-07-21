@@ -21,31 +21,7 @@ namespace booking_hotel_backend.Migrations
                 defaultValue: "")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
-            migrationBuilder.CreateTable(
-                name: "leave_requests",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    hotel_staff_id = table.Column<long>(type: "bigint", nullable: false),
-                    FromDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    ToDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    Reason = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_leave_requests", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_leave_requests_hotel_staffs_hotel_staff_id",
-                        column: x => x.hotel_staff_id,
-                        principalTable: "hotel_staffs",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
+            
 
             migrationBuilder.CreateTable(
                 name: "salaries",

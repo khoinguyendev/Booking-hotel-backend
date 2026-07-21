@@ -31,7 +31,7 @@ public static class AttendanceMapper
             Id = attendance.Id,
 
             ShiftTime =
-    $"{attendance.WorkSchedule.Shift.StartTime:HH\\:mm} - {attendance.WorkSchedule.Shift.EndTime:HH\\:mm}",
+                $"{attendance.WorkSchedule.Shift.StartTime:HH\\:mm} - {attendance.WorkSchedule.Shift.EndTime:HH\\:mm}",
 
             CheckInTime = attendance.CheckInTime,
             CheckOutTime = attendance.CheckOutTime,

@@ -31,7 +31,9 @@ namespace booking_hotel_backend.Services
             var now = DateTimeExtensions.VietnamNow;
 
             var user = await _context.Users
-                .FirstOrDefaultAsync(x => x.Email == request.Email);
+    .Include(x => x.HotelStaff)
+        .ThenInclude(x => x.Hotel)
+    .FirstOrDefaultAsync(x => x.Email == request.Email);
 
             if (user == null)
             {

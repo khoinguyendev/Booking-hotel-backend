@@ -15,7 +15,7 @@ public class WorkSchedule
 
     [Required]
     [Column("shift_id")]
-    public long ShiftId { get; set; }
+    public long? ShiftId { get; set; }
 
     [Required]
     public DateOnly WorkDate { get; set; }
@@ -26,7 +26,7 @@ public class WorkSchedule
     public HotelStaff HotelStaff { get; set; } = null!;
 
     [ForeignKey(nameof(ShiftId))]
-    public Shift Shift { get; set; } = null!;
+    public Shift? Shift { get; set; } = null!;
 
     public virtual Attendance? Attendance { get; set; }
 }

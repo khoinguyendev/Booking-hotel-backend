@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using booking_hotel_backend.Data;
 
@@ -11,9 +12,11 @@ using booking_hotel_backend.Data;
 namespace booking_hotel_backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260717113340_add table LeaveRequest,StaffRequest,ShiftChangRequest,OvertimeRequest")]
+    partial class addtableLeaveRequestStaffRequestShiftChangRequestOvertimeRequest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -749,21 +752,13 @@ namespace booking_hotel_backend.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long?>("NewShiftId")
+                    b.Property<long>("NewShiftId")
                         .HasColumnType("bigint")
                         .HasColumnName("new_shift_id");
-
-                    b.Property<DateOnly?>("NewWorkDate")
-                        .HasColumnType("date")
-                        .HasColumnName("new_work_date");
 
                     b.Property<long>("StaffRequestId")
                         .HasColumnType("bigint")
                         .HasColumnName("staff_request_id");
-
-                    b.Property<long?>("TargetWorkScheduleId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("target_work_schedule_id");
 
                     b.Property<long>("WorkScheduleId")
                         .HasColumnType("bigint")
@@ -775,8 +770,6 @@ namespace booking_hotel_backend.Migrations
 
                     b.HasIndex("StaffRequestId")
                         .IsUnique();
-
-                    b.HasIndex("TargetWorkScheduleId");
 
                     b.HasIndex("WorkScheduleId");
 
@@ -824,10 +817,6 @@ namespace booking_hotel_backend.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("int")
                         .HasColumnName("type");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("updated_at");
 
                     b.HasKey("Id");
 
@@ -1177,17 +1166,15 @@ namespace booking_hotel_backend.Migrations
                 {
                     b.HasOne("booking_hotel_backend.Models.Entities.Shift", "NewShift")
                         .WithMany()
-                        .HasForeignKey("NewShiftId");
+                        .HasForeignKey("NewShiftId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("booking_hotel_backend.Models.Entities.StaffRequest", "StaffRequest")
                         .WithOne("ShiftChangeRequest")
                         .HasForeignKey("booking_hotel_backend.Models.Entities.ShiftChangeRequest", "StaffRequestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("booking_hotel_backend.Models.Entities.WorkSchedule", "TargetWorkSchedule")
-                        .WithMany()
-                        .HasForeignKey("TargetWorkScheduleId");
 
                     b.HasOne("booking_hotel_backend.Models.Entities.WorkSchedule", "WorkSchedule")
                         .WithMany()
@@ -1198,8 +1185,6 @@ namespace booking_hotel_backend.Migrations
                     b.Navigation("NewShift");
 
                     b.Navigation("StaffRequest");
-
-                    b.Navigation("TargetWorkSchedule");
 
                     b.Navigation("WorkSchedule");
                 });

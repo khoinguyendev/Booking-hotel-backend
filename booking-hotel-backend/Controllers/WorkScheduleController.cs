@@ -3,6 +3,7 @@ using booking_hotel_backend.Models.DTOs.WorkSchedule;
 using booking_hotel_backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace booking_hotel_backend.Controllers;
 
@@ -68,7 +69,22 @@ public class WorkScheduleController : ControllerBase
             Data = data
         });
     }
+    [Authorize(Roles = "Admin,Manager")]
+    [HttpPost("import")]
+    public async Task<IActionResult> Creates(List<ImportWorkScheduleRequest> requests)
+    {
+        var userId = int.Parse(
+               User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        var data = await _workScheduleService.ImportAsync(requests, userId);
 
+        return Ok(new ApiResponse<object>
+        {
+            Success = true,
+            Code = ErrorCode.SUCCESS,
+            Message = "Tạo lịch làm thành công.",
+            Data = data
+        });
+    }
     /// <summary>
     /// Cập nhật lịch làm
     /// </summary>

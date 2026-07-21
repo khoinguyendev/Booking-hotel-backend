@@ -1,15 +1,17 @@
 ﻿using booking_hotel_backend.Common;
+using booking_hotel_backend.Common.Exceptions;
 using booking_hotel_backend.Data;
 using booking_hotel_backend.Extensions;
 using booking_hotel_backend.Models.DTOs.Attendance;
 using booking_hotel_backend.Models.DTOs.HotelStaff;
 using booking_hotel_backend.Models.DTOs.Shift;
+using booking_hotel_backend.Models.Entities;
 using booking_hotel_backend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace booking_hotel_backend.Services
 {
-    public class HotelStaffService:IHotellStaffService
+    public class HotelStaffService : IHotellStaffService
     {
         private readonly AppDbContext _context;
         public HotelStaffService(
@@ -47,18 +49,16 @@ namespace booking_hotel_backend.Services
         public async Task<object> Test()
         {
             var test = await _context.HotelStaffs
-    .Where(x => x.Id == 4)
-    .Select(x => new
-    {
-        x.Id,
-        Count = x.WorkSchedules.Count()
-    })
-    .FirstAsync();
+                        .Where(x => x.Id == 4)
+                        .Select(x => new
+                        {
+                            x.Id,
+                            Count = x.WorkSchedules.Count()
+                        })
+                        .FirstAsync();
             return test;
         }
-        public async Task<PagedResponse<HotelStaffResponse>> GetStaffByManagerAsync(
-     PaginationRequest request,
-     int userId, DateOnly? workDate = null)
+        public async Task<PagedResponse<HotelStaffAttendanceResponse>> GetAttendanceStaffByManagerAsync(PaginationRequest request,int userId, DateOnly? workDate = null)
         {
             var manager = await _context.HotelStaffs
                 .AsNoTracking()
@@ -67,59 +67,82 @@ namespace booking_hotel_backend.Services
             if (manager == null)
                 throw new Exception("Bạn không thuộc khách sạn nào.");
             var date = workDate ?? DateOnly.FromDateTime(DateTime.Today);
-            Console.WriteLine($"workDate = {workDate}");
-            Console.WriteLine($"date = {date}");
-            Console.WriteLine($"Today = {DateOnly.FromDateTime(DateTime.Today)}");
+
             var query = _context.HotelStaffs
                 .AsNoTracking()
                 .Where(x => x.HotelId == manager.HotelId)
                 .OrderByDescending(x => x.JoinedAt)
-                .Select(x => new HotelStaffResponse
+                .Select(HotelStaffMapper.ToAttendanceResponse(date));
+
+            return await query.ToPagedResponseAsync(request.Page, request.PageSize);
+        }
+
+        public async Task<List<HotelStaffResponse>> GetStaffOfManagerAsync(long hotelId)
+        {
+            if (hotelId <= 0)
+                throw new BadRequestException("X001", "Bạn không thuộc khách sạn nào.");
+            Console.WriteLine(hotelId);
+            var staffs = await _context.HotelStaffs
+                .AsNoTracking()
+                .Include(x => x.User)
+                .Include(x => x.Position)
+                .Where(x => x.HotelId == hotelId)
+                .OrderByDescending(x => x.JoinedAt)
+                .ToListAsync();
+
+            return staffs
+                .Select(x => x.ToResponse())
+                .ToList();
+        }
+
+
+        public async Task<HotelStaffAttendanceResponse> GetAttendanceStaffByIdAsync(int userId, DateOnly? workDate = null)
+        {
+            var date = workDate ?? DateOnly.FromDateTime(DateTime.Today);
+
+            return await _context.HotelStaffs
+                .AsNoTracking()
+                .Where(x => x.UserId == userId)
+                .Select(HotelStaffMapper.ToAttendanceResponse(date))
+                .FirstOrDefaultAsync()
+                ?? throw new Exception("Không tìm thấy nhân viên.");
+        }
+
+        public async Task<List<WorkScheduleResponse>> GetMyWorkSchedulesAsync(int userId,int year,int month)
+        {
+            return await _context.WorkSchedules
+                .AsNoTracking()
+                .Where(x =>
+                    x.HotelStaff.UserId == userId &&
+                    x.WorkDate.Year == year &&
+                    x.WorkDate.Month == month)
+                .OrderBy(x => x.WorkDate)
+                .Select(x => new WorkScheduleResponse
                 {
                     Id = x.Id,
-                    UserId = x.UserId,
-                    FullName = x.User.FullName,
-                    Email = x.User.Email,
-                    Phone = x.User.Phone,
-                    EmployeeCode = x.EmployeeCode,
-                    Avatar = x.User.Avatar,
-                    Position = x.Position.Name,
-                    JoinedAt = x.JoinedAt,
-                    Status = x.Status,
+                    WorkDate = x.WorkDate,
+                    IsDayOff = x.IsDayOff,
 
-                    WorkSchedule = x.WorkSchedules
-                        .Where(w => w.WorkDate == date)
-                        .Select(w => new WorkScheduleResponse
+                    Shift = new ShiftReponse
+                    {
+                        Id = x.Shift.Id,
+                        Name = x.Shift.Name,
+                        StartTime = x.Shift.StartTime,
+                        EndTime = x.Shift.EndTime
+                    },
+
+                    Attendance = x.Attendance == null
+                        ? null
+                        : new AttendanceResponse
                         {
-                            Id = w.Id,
-                            WorkDate = w.WorkDate,
-                            IsDayOff = w.IsDayOff,
-
-                            Shift = new ShiftReponse
-                            {
-                                Id = w.Shift.Id,
-                                Name = w.Shift.Name,
-                                StartTime= w.Shift.StartTime,
-                                EndTime = w.Shift.EndTime
-                            },
-
-                            Attendance = w.Attendance == null
-                                ? null
-                                : new AttendanceResponse
-                                {
-                                    Id = w.Attendance.Id,
-                                    CheckInTime = w.Attendance.CheckInTime,
-                                    CheckOutTime = w.Attendance.CheckOutTime,
-                                    Status = w.Attendance.Status,
-                                    Note = w.Attendance.Note
-                                }
-                        })
-                        .FirstOrDefault()
-                });
-
-            return await query.ToPagedResponseAsync(
-                request.Page,
-                request.PageSize);
+                            Id = x.Attendance.Id,
+                            CheckInTime = x.Attendance.CheckInTime,
+                            CheckOutTime = x.Attendance.CheckOutTime,
+                            Status = x.Attendance.Status,
+                            Note = x.Attendance.Note
+                        }
+                })
+                .ToListAsync();
         }
     }
 }

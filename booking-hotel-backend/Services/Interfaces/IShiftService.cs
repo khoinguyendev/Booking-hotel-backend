@@ -7,7 +7,7 @@ namespace booking_hotel_backend.Services.Interfaces
         Task<List<ShiftReponse>> GetAllAsync();
 
         Task<ShiftReponse> GetByIdAsync(long id);
-
+        Task<List<ShiftReponse>> GetByHotelId(int id);
         Task<ShiftReponse> CreateAsync(CreateShiftRequest request);
 
         Task<ShiftReponse> UpdateAsync(long id, UpdateShiftRequest request);

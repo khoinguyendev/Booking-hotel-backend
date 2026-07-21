@@ -42,5 +42,7 @@ namespace booking_hotel_backend.Models.Entities
         public ICollection<LeaveRequest> LeaveRequests { get; set; } = [];
 
         public ICollection<Salary> Salaries { get; set; } = [];
+
+
     }
 }

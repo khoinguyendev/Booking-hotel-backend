@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace booking_hotel_backend.Models.Entities;
 
-[Table("leave_requests")]
-public class LeaveRequest
+[Table("overtime_requests")]
+public class OvertimeRequest
 {
     [Key]
     public long Id { get; set; }
@@ -14,12 +14,19 @@ public class LeaveRequest
     public long StaffRequestId { get; set; }
 
     [Required]
-    [Column("from_date")]
-    public DateOnly FromDate { get; set; }
+    [Column("work_date")]
+    public DateOnly WorkDate { get; set; }
 
     [Required]
-    [Column("to_date")]
-    public DateOnly ToDate { get; set; }
+    [Column("from_time")]
+    public TimeOnly FromTime { get; set; }
+
+    [Required]
+    [Column("to_time")]
+    public TimeOnly ToTime { get; set; }
+
+    [Column("hours")]
+    public decimal Hours { get; set; }
 
     [ForeignKey(nameof(StaffRequestId))]
     public virtual StaffRequest StaffRequest { get; set; } = null!;

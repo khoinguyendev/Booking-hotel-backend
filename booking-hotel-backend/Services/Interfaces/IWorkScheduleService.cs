@@ -9,7 +9,7 @@ public interface IWorkScheduleService
     Task<WorkScheduleResponse> GetByIdAsync(long id);
 
     Task<WorkScheduleResponse> CreateAsync(CreateWorkScheduleRequest request);
-
+    Task<List<WorkScheduleResponse>> ImportAsync(List<ImportWorkScheduleRequest> requests, long userId);
     Task<WorkScheduleResponse> UpdateAsync(long id, UpdateWorkScheduleRequest request);
 
     Task DeleteAsync(long id);

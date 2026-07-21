@@ -2,10 +2,12 @@
 using booking_hotel_backend.Models.DTOs.Hotel;
 using booking_hotel_backend.Models.DTOs.HotelStaff;
 using booking_hotel_backend.Models.DTOs.User;
+using booking_hotel_backend.Models.Entities;
 using booking_hotel_backend.Services;
 using booking_hotel_backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System.Security.Claims;
 
 namespace booking_hotel_backend.Controllers
@@ -30,17 +32,17 @@ namespace booking_hotel_backend.Controllers
             {
                 Success = true,
                 Code = ErrorCode.SUCCESS,
-                Message = "Them thành công.",
+                Message = "Thêm thành công.",
             });
         }
         [Authorize(Roles = "Manager")]
-        [HttpGet]
-        public async Task<IActionResult> GetStaffs([FromQuery] PaginationRequest request, [FromQuery] DateOnly? date=null)
+        [HttpGet("attendance")]
+        public async Task<IActionResult> GetAttendanceStaffByManagerAsync([FromQuery] PaginationRequest request, [FromQuery] DateOnly? date=null)
         {
             var userId = int.Parse(
                 User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-            var data = await _hotelStaffService.GetStaffByManagerAsync(request,userId,date);
+            var data = await _hotelStaffService.GetAttendanceStaffByManagerAsync(request,userId,date);
 
             return Ok(new ApiResponse<object>
             {
@@ -50,7 +52,87 @@ namespace booking_hotel_backend.Controllers
                 Data = data
             });
         }
+        [Authorize(Roles = "Manager")]
+        [HttpGet]
+        public async Task<IActionResult> GetStaffOfManagerAsync()
+        {
+           
+            var hotelId = User.GetHotelId();
 
+            var data = await _hotelStaffService.GetStaffOfManagerAsync(hotelId);
+
+            return Ok(new ApiResponse<object>
+            {
+                Success = true,
+                Code = ErrorCode.SUCCESS,
+                Message = "Lấy danh sách nhân viên thành công.",
+                Data = data
+            });
+        }
+        [Authorize(Roles = "Manager")]
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetStaff(int id,[FromQuery] DateOnly? date = null)
+        {
+            var data = await _hotelStaffService.GetAttendanceStaffByIdAsync(id, date);
+            return Ok(new ApiResponse<object>
+            {
+                Success = true,
+                Code = ErrorCode.SUCCESS,
+                Message = "Lấy dữ liệu thành công.",
+                Data = data
+            });
+        }
+        [Authorize(Roles = "Manager")]
+        [HttpGet("{userId:int}/work-schedules")]
+        public async Task<IActionResult> GetMyWorkSchedules(
+            int userId, [FromQuery] int year, [FromQuery] int month)
+        {
+
+            var data = await _hotelStaffService.GetMyWorkSchedulesAsync(userId, year, month);
+
+            return Ok(new ApiResponse<object>
+            {
+                Success = true,
+                Code = ErrorCode.SUCCESS,
+                Message = "Lấy lịch làm việc thành công.",
+                Data = data
+            });
+        }
+        [Authorize(Roles = "Staff")]
+        [HttpGet("me/work-schedules")]
+        public async Task<IActionResult> GetWorkSchedules(
+    [FromQuery] int year,
+    [FromQuery] int month)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var data = await _hotelStaffService.GetMyWorkSchedulesAsync(userId, year, month);
+
+            return Ok(new ApiResponse<object>
+            {
+                Success = true,
+                Code = ErrorCode.SUCCESS,
+                Message = "Lấy lịch làm việc thành công.",
+                Data = data
+            });
+        }
+        [Authorize(Roles = "Staff")]
+        [HttpGet("me")]
+        public async Task<IActionResult> GetMe([FromQuery] DateOnly? date = null)
+        {
+            var userId = int.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var data = await _hotelStaffService.GetAttendanceStaffByIdAsync(userId, date);
+
+            return Ok(new ApiResponse<object>
+            {
+                Success = true,
+                Code = ErrorCode.SUCCESS,
+                Message = "Lấy dữ liệu thành công.",
+                Data = data
+            });
+        }
         [HttpGet("/test")]
         public async Task<IActionResult> Test()
         {

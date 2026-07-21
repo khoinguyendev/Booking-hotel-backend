@@ -4,6 +4,7 @@ using booking_hotel_backend.Models.DTOs.Shift;
 using booking_hotel_backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace booking_hotel_backend.Controllers;
 
@@ -21,6 +22,7 @@ public class ShiftController : ControllerBase
     /// <summary>
     /// Lấy danh sách khách sạn
     /// </summary>
+    [Authorize("Roles = Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -34,7 +36,22 @@ public class ShiftController : ControllerBase
             Data = data
         });
     }
+    [Authorize]
+    [HttpGet("hotel")]
+    public async Task<IActionResult> GetByHotelId()
+    {
+        var userId = int.Parse(
+         User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        var data = await _shiftService.GetByHotelId(userId);
 
+        return Ok(new ApiResponse<object>
+        {
+            Success = true,
+            Code = ErrorCode.SUCCESS,
+            Message = "Lấy danh sách thành công.",
+            Data = data
+        });
+    }
     /// <summary>
     /// Lấy chi tiết khách sạn
     /// </summary>

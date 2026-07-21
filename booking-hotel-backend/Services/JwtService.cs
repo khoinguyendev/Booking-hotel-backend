@@ -25,7 +25,14 @@ namespace booking_hotel_backend.Services
                 new Claim(ClaimTypes.Name, user.FullName),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role.ToString()),
+               
+
             };
+            if (user.HotelStaff != null)
+            {
+                claims.Add(new Claim("HotelStaffId", user.HotelStaff.Id.ToString()));
+                claims.Add(new Claim("HotelId", user.HotelStaff.HotelId.ToString()));
+            }
 
             var key = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
